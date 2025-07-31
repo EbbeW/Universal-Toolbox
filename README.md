@@ -11,7 +11,7 @@
 You know those quick Python scripts you duct-tape together in 3 minutes to rename files, batch-edit something, or extract the pain from your soul?
 No time for structure, no time to setup a virtual environment, just one file of shit code.
 
-Yeah, this is a toolbox to collect exactly those pieces of shitty python. It's a great way to give your scripts the live they barely still deserve and to reuse them in the future, imagine about actually reusing them or just growing your ego on the amount of shit code you now own.
+Yeah, this is a toolbox to collect exactly those pieces of shitty python. It's a great way to give your scripts the life they barely still deserve and to reuse them in the future, imagine about actually reusing them or just growing your ego on the amount of shit code you now own.
 This tool is just as *quickly thrown together* as the scripts it's made to manage. No shame. It works. That’s good enough.
 
 It also lives nice and conveniently inside your Windows Explorer's or desktop's context menu. No app, no nothing.. It's always right there, where you need it.
