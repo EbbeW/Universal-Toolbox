@@ -1,11 +1,12 @@
-name: Upload Toolbox Installer to Release
+name: Build and Release Toolbox Installer
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - "v*"
 
 jobs:
-  build-and-upload:
+  build-and-release:
     runs-on: ubuntu-latest
 
     steps:
@@ -15,12 +16,15 @@ jobs:
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.11"
+
+      - name: 📦 Install dependencies (if any)
+        run: pip install -r requirements.txt || true
 
       - name: 🛠️ Run make_installer.py
         run: python make_installer.py
 
-      - name: 🚀 Upload to GitHub Release
+      - name: 🚀 Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: install_toolbox.py
