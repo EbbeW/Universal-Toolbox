@@ -88,6 +88,5 @@ if __name__ == '__main__':
 """)
 
     print(f"✅ Installer created at: {OUT_SCRIPT}")
-    input("(press enter to exit)")
 
 make_installer()
