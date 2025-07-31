@@ -51,17 +51,6 @@ So if your script writes files, reads paths, or destroys the universe — it doe
 
 ---
 
-## 📸 Screenshots
-Adding a new tool:
-![Adding a tool](./Screenshots/add.png)
-Browsing your toolbox:
-![Browsing the toolbox](./Screenshots/browse.png)
-Launching your tool:
-![Launching a tool](./Screenshots/use.png)
-
-
----
-
 ## 🐍 Requirements
 
 * Python installed
@@ -81,3 +70,13 @@ Launching your tool:
 Isn't it perfect?
 
 ---
+
+---
+
+## 📸 Screenshots
+Adding a new tool:
+![Adding a tool](./Screenshots/add.png)
+Browsing your toolbox:
+![Browsing the toolbox](./Screenshots/browse.png)
+Launching your tool:
+![Launching a tool](./Screenshots/use.png)
