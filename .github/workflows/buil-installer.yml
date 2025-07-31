@@ -1,0 +1,32 @@
+name: Build and Release Toolbox Installer
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 📦 Install dependencies (if any)
+        run: pip install -r requirements.txt || true
+
+      - name: 🛠️ Run make_installer.py
+        run: python make_installer.py
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: install_toolbox.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
