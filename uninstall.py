@@ -4,7 +4,7 @@ import winreg
 import ctypes
 import sys
 
-INSTALL_DIR = os.path.join(os.path.expanduser("~"), "universal-toolbox")
+INSTALL_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def is_admin():
     try:

@@ -1,4 +1,5 @@
 import os
+import subprocess
 import sys
 import shutil
 import tkinter as tk
@@ -89,30 +90,24 @@ class InstallerGUI(tk.Tk):
         shutil.copyfile(src_sync, dst_sync)
         shutil.copyfile(src_uninstall, dst_uninstall)
         shutil.copyfile(src_icon, dst_icon)
+        
+        with open(os.path.join(install_dir, "pythonPath.txt"), "w") as f:
+            f.write(python_path)
+        
+        with open(os.path.join(install_dir, "mode.flag"), "w") as f:
+            f.write("run")
 
         # Write registry entries
         try:
-            self.create_registry(python_path, dst_toolbox, dst_sync)
+            self.create_registry(python_path, install_dir)
             messagebox.showinfo("Installed", "Universal Toolbox installed successfully.")
         except Exception as e:
             messagebox.showerror("Registry Error", f"Failed to create context menu: {e}")
 
         self.destroy()
 
-    def create_registry(self, python_path, toolbox_path, sync_script_path):
-        install_dir = self.install_path.get()
-
-        # File (.py) menu
-        file_base = 'SystemFileAssociations\\.py\\shell\\UniversalToolboxAdd'
-        file_cmd = file_base + '\\command'
-        icon_path = install_dir + '\\toolbox.ico'
-        
-        with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, file_base) as key:
-            winreg.SetValueEx(key, '', 0, winreg.REG_SZ, 'Add to Universal Toolbox')
-            winreg.SetValueEx(key, 'Icon', 0, winreg.REG_SZ, icon_path)
-        with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, file_cmd) as key:
-            cmd = f'"{python_path}" "{toolbox_path}" --add "%1"'
-            winreg.SetValueEx(key, '', 0, winreg.REG_SZ, cmd)
+    def create_registry(self, python_path, install_dir):
+        subprocess.run([python_path, f"{install_dir}\\sync.py"], check=True)
 
 
 if __name__ == '__main__':

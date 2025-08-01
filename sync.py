@@ -6,13 +6,16 @@ import sys
 import ctypes
 
 
-INSTALL_DIR = os.path.join(os.path.expanduser("~"), "universal-toolbox")
+INSTALL_DIR = os.path.dirname(os.path.abspath(__file__))
 TOOLS_DIR = os.path.join(INSTALL_DIR, "tools")
 PYTHON_EXEC = sys.executable
+with open("pythonPath.txt") as f:
+    PYTHON_EXEC = f.read()
 TOOLBOX_SCRIPT = os.path.join(INSTALL_DIR, "toolbox.py")
 ICON = os.path.join(INSTALL_DIR, "toolbox.ico")
 
-REG_BASE = "Directory\\Background\\shell\\UniversalToolbox"
+REG_BASE_DIR = "Directory\\Background\\shell\\UniversalToolbox"
+REG_BASE_EXT = "SystemFileAssociations\\.py\\shell\\UniversalToolboxAdd"
 
 def is_admin():
     try:
@@ -63,20 +66,38 @@ def delete_registry_tree(path):
     except FileNotFoundError:
         pass
 
-def ensure_key(path, values=None):
+def ensure_key(path, values, command=None):
     with winreg.CreateKey(winreg.HKEY_CLASSES_ROOT, path) as key:
-        if values:
-            for name, (regtype, val) in values.items():
-                winreg.SetValueEx(key, name, 0, regtype, val)
+        for name, (regtype, val) in values.items():
+            winreg.SetValueEx(key, name, 0, regtype, val)
+    if command:
+        ensure_key(f"{path}\\command", {"": (winreg.REG_SZ, command)})
 
 def sync_registry():
     # Step 1: Clean registry root
-    delete_registry_tree(REG_BASE)
-    ensure_key(REG_BASE, {
+    delete_registry_tree(REG_BASE_DIR)
+    delete_registry_tree(REG_BASE_EXT)
+    ensure_key(REG_BASE_EXT, {
+        "MUIVerb": (winreg.REG_SZ, "Add to Universal Toolbox"),
+        "Icon": (winreg.REG_SZ, ICON)
+    }, command=f'"{PYTHON_EXEC}" "{TOOLBOX_SCRIPT}" --add "%1"')
+    ensure_key(REG_BASE_DIR, {
         "MUIVerb": (winreg.REG_SZ, "Universal Toolbox"),
         "SubCommands": (winreg.REG_SZ, ""),
         "Icon": (winreg.REG_SZ, ICON)
     })
+    ensure_key(f"{REG_BASE_DIR}\\shell\\DeleteMode", {
+        "MUIVerb": (winreg.REG_SZ, "Delete Tools"),
+        "Icon": (winreg.REG_SZ, ICON)
+    }, command=f'"{PYTHON_EXEC}" "{INSTALL_DIR}"\\elevate_mode.py --del')
+    ensure_key(f"{REG_BASE_DIR}\\shell\\ExportMode", {
+        "MUIVerb": (winreg.REG_SZ, "Export/Share"),
+        "Icon": (winreg.REG_SZ, ICON)
+    }, command=f'"{PYTHON_EXEC}" "{INSTALL_DIR}"\\elevate_mode.py --exp')
+    ensure_key(f"{REG_BASE_DIR}\\shell\\OpenDir", {
+        "MUIVerb": (winreg.REG_SZ, "Open Toolbox Directory"),
+        "Icon": (winreg.REG_SZ, ICON)
+    }, command=f"start {INSTALL_DIR}")
 
     for category_folder in os.listdir(TOOLS_DIR):
         category_path = os.path.join(TOOLS_DIR, category_folder)
@@ -88,7 +109,7 @@ def sync_registry():
             continue
 
         norm_cat = normalise(friendly_name)
-        cat_key = f"{REG_BASE}\\shell\\{norm_cat}"
+        cat_key = f"{REG_BASE_DIR}\\shell\\{norm_cat}"
 
         ensure_key(cat_key, {
             "MUIVerb": (winreg.REG_SZ, friendly_name),
@@ -103,19 +124,9 @@ def sync_registry():
             tool_friendly = read_tool_name(tool_path)
             norm_tool = normalise(tool_friendly)
 
-            tool_key = f"{cat_key}\\shell\\{norm_tool}"
-            command_key = f"{tool_key}\\command"
-
-            rel_path = f"{category_folder}/{file}"
-
-            ensure_key(tool_key, {
+            ensure_key(f"{cat_key}\\shell\\{norm_tool}", {
                 "MUIVerb": (winreg.REG_SZ, tool_friendly)
-            })
-
-            command = f'"{PYTHON_EXEC}" "{TOOLBOX_SCRIPT}" --run "{rel_path}" --context "%V"'
-            ensure_key(command_key, {
-                "": (winreg.REG_SZ, command)
-            })
+            }, command=f'"{PYTHON_EXEC}" "{TOOLBOX_SCRIPT}" --run "{category_folder}/{file}" --context "%V"')
 
     print("Registry sync complete.")
 
