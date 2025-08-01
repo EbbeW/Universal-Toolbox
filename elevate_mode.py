@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 MODE_FILE = os.path.join(os.path.dirname(__file__), "mode.flag")
+ICON = os.path.join(os.path.dirname(__file__), "toolbox.ico")
 
 VALID_MODES = {
     "--exp": "export",
@@ -23,6 +24,15 @@ def set_mode(new_mode):
 def clear_mode():
     set_mode("run")
 
+def set_app_icon(hwnd=None):
+    import ctypes
+    import ctypes.wintypes
+    appid = "Universal.Toolbox"
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appid)
+
+    if hwnd:
+        ctypes.windll.user32.SendMessageW(hwnd, 0x0080, 1, ICON)
+
 def activate_mode(mode_flag):
     if mode_flag not in VALID_MODES:
         print("Usage: elevate_mode.py [--exp | --del]")
@@ -39,6 +49,8 @@ def activate_mode(mode_flag):
 
     root = tk.Tk()
     root.title(f"{new_mode.capitalize()} Mode Active")
+    set_app_icon(root.winfo_id())
+    root.iconbitmap(ICON)
     root.geometry("400x200")
     root.protocol("WM_DELETE_WINDOW", lambda: (clear_mode(), root.destroy()))
 

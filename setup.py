@@ -4,7 +4,6 @@ import sys
 import shutil
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import winreg
 import ctypes
 
 def is_admin():
@@ -27,11 +26,22 @@ def get_python_paths():
             possible.append(os.path.join(path, "python.exe"))
     return sorted(set(possible))
 
+def set_app_icon(hwnd=None):
+    import ctypes
+    import ctypes.wintypes
+    appid = "Universal.Toolbox"
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(appid)
+
+    if hwnd:
+        ctypes.windll.user32.SendMessageW(hwnd, 0x0080, 1, os.path.join(os.path.dirname(__file__), "toolbox.ico"))
+
 class InstallerGUI(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Universal Toolbox Installer")
         self.geometry("712x256")
+        set_app_icon(self.winfo_id())
+        self.iconbitmap(os.path.join(os.path.dirname(__file__), "toolbox.ico"))
         self.resizable(False, False)
 
         self.python_path = tk.StringVar(value=sys.executable)
@@ -75,21 +85,12 @@ class InstallerGUI(tk.Tk):
         os.makedirs(install_dir, exist_ok=True)
         tools_dir = os.path.join(install_dir, "tools")
         os.makedirs(tools_dir, exist_ok=True)
-
-        # Copy toolbox.py to install dir
-        src_toolbox = os.path.join(os.path.dirname(__file__), "toolbox.py")
-        src_icon = os.path.join(os.path.dirname(__file__), "toolbox.ico")
-        src_sync = os.path.join(os.path.dirname(__file__), "sync.py")
-        src_uninstall = os.path.join(os.path.dirname(__file__), "uninstall.py")
         
-        dst_toolbox = os.path.join(install_dir, "toolbox.py")
-        dst_icon = os.path.join(install_dir, "toolbox.ico")
-        dst_sync = os.path.join(install_dir, "sync.py")
-        dst_uninstall = os.path.join(install_dir, "uninstall.py")
-        shutil.copyfile(src_toolbox, dst_toolbox)
-        shutil.copyfile(src_sync, dst_sync)
-        shutil.copyfile(src_uninstall, dst_uninstall)
-        shutil.copyfile(src_icon, dst_icon)
+        to_copy = ["toolbox.py", "sync.py", "uninstall.py", "toolbox.ico", "elevate_mode.py"]
+        for file in to_copy:
+            src = os.path.join(os.path.dirname(__file__), file)
+            dst = os.path.join(install_dir, file)
+            shutil.copyfile(src, dst)
         
         with open(os.path.join(install_dir, "pythonPath.txt"), "w") as f:
             f.write(python_path)

@@ -2,7 +2,7 @@ import base64
 import os
 
 
-ASSETS = ["toolbox.py", "sync.py", "setup.py", "uninstall.py", "toolbox.ico"]
+ASSETS = ["toolbox.py", "sync.py", "setup.py", "uninstall.py", "toolbox.ico", "elevate_mode.py"]
 RUN_SCRIPT = "setup.py"
 OUT_SCRIPT = "install_toolbox.py"
 
@@ -31,14 +31,14 @@ atexit.register(cleanup_flag)
     return base64.b64encode(content).decode("utf-8")
 
 def make_installer():
-    # Encode all scripts
-    encoded_scripts = {filename: encode_file(filename) for filename in ASSETS}
+    # Encode all assets
+    encoded_assets = {filename: encode_file(filename) for filename in ASSETS}
 
     with open(OUT_SCRIPT, "w", encoding="utf-8") as out:
         out.write("# Self-extracting installer for Universal Toolbox\n")
-        out.write("import base64, os, tempfile, subprocess, time, shutil, sys\n\n")
-        out.write("scripts = {\n")
-        for name, encoded in encoded_scripts.items():
+        out.write("import base64, os, tempfile, time, shutil, sys\n\n")
+        out.write("assets = {\n")
+        for name, encoded in encoded_assets.items():
             out.write(f"    {repr(name)}: '''{encoded}''',\n")
         out.write("}\n\n")
         out.write("""
@@ -60,7 +60,7 @@ def main():
     flag_path = os.path.join(tmpdir, "install_complete.flag")
 
     try:
-        for name, b64 in scripts.items():
+        for name, b64 in assets.items():
             with open(os.path.join(tmpdir, name), 'wb') as f:
                 f.write(base64.b64decode(b64.encode('utf-8')))
 
@@ -81,7 +81,6 @@ def main():
     finally:
         try_rmtree_with_retries(tmpdir)
         print("🧹 Temp directory cleaned.")
-        input("(press enter to exit)")
 
 if __name__ == '__main__':
     main()

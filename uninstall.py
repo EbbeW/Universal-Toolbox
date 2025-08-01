@@ -12,12 +12,6 @@ def is_admin():
     except:
         return False
 
-def run_as_admin():
-    if not is_admin():
-        params = ' '.join([f'"{arg}"' for arg in sys.argv])
-        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, params, None, 1)
-        sys.exit()
-
 def delete_registry_tree(root, subkey):
     try:
         with winreg.OpenKey(root, subkey, 0, winreg.KEY_ALL_ACCESS) as key:
@@ -41,12 +35,14 @@ def _delete_subkeys_recursively(key, current_path):
         pass  # No more subkeys
 
 def uninstall():
-    run_as_admin()
+    if not is_admin():
+        print("You need to run this script as admin")
+        sys.exit()
 
     print("🔧 Uninstalling Universal Toolbox...")
 
     # Main context menu (tool launcher)
-    delete_registry_tree(winreg.HKEY_CLASSES_ROOT, r'AllFilesystemObjects\shell\UniversalToolbox')
+    delete_registry_tree(winreg.HKEY_CLASSES_ROOT, r'Directory\Background\shell\UniversalToolbox')
 
     # .py file "Add to Toolbox" menu
     delete_registry_tree(winreg.HKEY_CLASSES_ROOT, r'SystemFileAssociations\.py\shell\UniversalToolboxAdd')

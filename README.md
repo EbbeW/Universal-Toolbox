@@ -21,7 +21,7 @@ It also lives nice and conveniently inside your Windows Explorer's or desktop's 
 ## 💾 How to Install
 
 Find the installer in the **[Releases](../../releases)** section.
-Download it. Run it. Pray. You're set.
+Download it. Run it with Python. Pray. You're set.
 
 ---
 
@@ -49,6 +49,19 @@ Download it. Run it. Pray. You're set.
 🧭 **Everything runs relative to where you right-clicked**.
 So if your script writes files, reads paths, or destroys the universe — it does it *right there*.
 
+### 📂 Exporting or Sharing a tool
+1. Right-click **any empty space** in a folder or your desktop.
+2. Choose **“Universal Toolbox”->Export/Share Tools”** from the context menu.
+3. Follow the instructions on the popup window
+4. This will save a python file with the tool name and description embedded inside it, so you can keep this information when re-adding or sharing it.
+
+
+### 🗑️ Removing a tool
+1. Right-click **any empty space** in a folder or your desktop.
+2. Choose **“Universal Toolbox”->Delete Tools** from the context menu.
+3. Follow the instructions on the popup window
+4. Your tool is now permanently voided into the abyss. If the category has no remaining tools inside, it will be deleted too.
+
 ---
 
 ## 🐍 Requirements
@@ -68,6 +81,21 @@ So if your script writes files, reads paths, or destroys the universe — it doe
 * And there are **no regrets**.
 
 Isn't it perfect?
+
+---
+
+## 🔥 How to UnInstall
+
+1. Right-click **any empty space** in a folder or your desktop.
+2. Choose **“Universal Toolbox” -> “Open Install Directory”** from the context menu.
+3. This will open a folder in your Windows Explorer, where you will find `uninstall.py`
+4. Run it in a terminal with admin permissions enabled.
+5. Double check:
+   - In your Windows Registry Editor:
+     - There should be no `UniversalToolbox` inside `HKEY_CLASSES_ROOT\Directory\Background\shell`
+     (this one tends skip deleting some subkeys sometimes)
+     - There should be no `UniversalToolbox` inside
+     `HKEY_CLASSES_ROOT\SystemFileAssociations\.py\shell`
 
 ---
 
